@@ -81,10 +81,10 @@ node-fetch@^2.6.0:
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
   integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
 
-ogamejs@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/ogamejs/-/ogamejs-2.1.0.tgz#e7c20ad134159fc0f409c9b77853922061e0f295"
-  integrity sha512-fIe6eTm48LA0a7WtKLEgRrI/R3tG6ebMlOuGVtF3zZvfw797YYwZCnRaLOgg790iAkvVMU6Kxj6blzQ2q4bKpg==
+ogamejs@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/ogamejs/-/ogamejs-2.1.1.tgz#876d11c689d677e9e867c3fa2da0ca89e9530919"
+  integrity sha512-+gx5KdnjSgEkqdB/DGRn++YCsD6r4W6t/3UVal3Zv0NjVTJ7/RL3rIUNNAROhPQZsFaXaX/51aUNg6M3OimBpQ==
   dependencies:
     lodash "^4.17.15"
 
