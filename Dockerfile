@@ -11,4 +11,4 @@ FROM node:lts as production
 WORKDIR /app
 COPY --from=build /app /app
 
-CMD ["$DISCORD_TOKEN", "npm", "start"]
+CMD ["npm", "start"]
