@@ -7,7 +7,7 @@ function parseInput(msg) {
 	return { moonsize, nbrip };
 }
 
-function getLossesStats(moonsize, nbrip) {
+function getLosses(moonsize, nbrip) {
 	//Estimation des pertes
 
 	//proba d'echec d'une vague moyenne de rip
@@ -18,17 +18,34 @@ function getLossesStats(moonsize, nbrip) {
 	const proba_destr = Math.sqrt(moonsize) / 200;
 
 	//somme des pertes
-	let pertes = 0
+	let pertes = 0;
+	let variance = 0
 
 	//les pertes sont calculé itérativement: nbrip_moy * proba_destr * proba que les vagues d'avant échouent
 	for (let i = 0; i < 6; i++) {
 		pertes = pertes + (nbrip / 6) * proba_destr * (proba_echec_moy ** (i));
+
+		//On considère 6 variables de bernoulli Xk de proba proba_destr*proba_echec_moy^(k-1)
+		//Ces 6 lois sont indépendantes (calcul de covariance Cov(Xi,Xj)=0 pour tout i!=j)
+		//donc la variance de la somme est la somme des variances
+		//Enfin, les pertes variances sont les pertes associés à chaque loi est la variance de la loi Xk * le nb de rip de la vague k
+		variance = variance + (nbrip / 6) * proba_destr * (proba_echec_moy ** (i)) * (1 - proba_destr * (proba_echec_moy ** (i)));
 	}
 
-	//arrondi des pertes au centiemes
-	pertes = Math.round(100 * pertes) / 100;
+	let ecarttype = Math.sqrt(variance);
 
-	return pertes;
+	//On modélisera la répartition des pertes par une gaussienne.
+	let min1 = Math.round(100 * Math.max((pertes - ecarttype), 0)) / 100;
+	let min2 = Math.round(100 * Math.max((pertes - 2 * ecarttype), 0)) / 100;
+	let min3 = Math.round(100 * Math.max((pertes - 3 * ecarttype), 0)) / 100;
+	let max1 = Math.round(100 * Math.min((pertes + ecarttype), nbrip)) / 100;
+	let max2 = Math.round(100 * Math.min((pertes + 2 * ecarttype), nbrip)) / 100;
+	let max3 = Math.round(100 * Math.min((pertes + 3 * ecarttype), nbrip)) / 100;
+
+	//arrondi des pertes au centiemes
+	var pertes = Math.round(100 * pertes) / 100;
+
+	return { pertes, min1, max1, min2, max2, min3, max3 };
 }
 
 function moonBreak(message) {
@@ -37,8 +54,8 @@ function moonBreak(message) {
 
 
 	// Valiadation des conditions
-	if (moonsize <= 3464 || moonsize >= 8944 || nbrip < 0) {
-		return "Erreur dans les paramètres:\nMoonsize€[3464;8944] & Nb_RIP€[1;2000].";
+	if (moonsize < 3464 || moonsize > 8944 || nbrip < 0) {
+		return "Erreur dans les paramètres. (Usage: !mb [TailleLune] [Nombre_RIP])\n\nTaille de la lune compris entre 3464km et 8944km.\nNombre_RIP un nombre entier positif.";
 	}
 
 
@@ -87,33 +104,40 @@ function moonBreak(message) {
 
 		switch (nbrip_reste) {
 			case 0:
-				mbspeak = "Réussite du MoonBreak (" + moonsize + "km): **" + proba_reussite + "%** avec 6 vagues de " + nbrip_vague + " RIP.";
+				mbspeak = "**" + proba_reussite + "% de réussite** du MoonBreak (" + moonsize + "km) avec 6 vagues de " + nbrip_vague + " RIP.";
 				break;
 			case 1:
-				mbspeak = "Réussite du MoonBreak (" + moonsize + "km): **" + proba_reussite + "%** avec 1 vague de " + (nbrip_vague + 1) + " et 5 vagues de " + nbrip_vague + " RIP.";
+				mbspeak = "**" + proba_reussite + "% de réussite** du MoonBreak (" + moonsize + "km) avec 1 vague de " + (nbrip_vague + 1) + " et 5 vagues de " + nbrip_vague + " RIP.";
 				break;
 			case 5:
-				mbspeak = "Réussite du MoonBreak (" + moonsize + "km): **" + proba_reussite + "%** avec 5 vagues de " + (nbrip_vague + 1) + " et 1 vague de " + nbrip_vague + " RIP.";
+				mbspeak = "**" + proba_reussite + "% de réussite** du MoonBreak (" + moonsize + "km) avec 5 vagues de " + (nbrip_vague + 1) + " et 1 vague de " + nbrip_vague + " RIP.";
 				break;
 			default:
-				mbspeak = "Réussite du MoonBreak (" + moonsize + "km): **" + proba_reussite + "%** avec " + nbrip_reste + " vagues de " + (nbrip_vague + 1) + " et " + (6 - nbrip_reste) + " vagues de " + nbrip_vague + " RIP.";
+				mbspeak = "**" + proba_reussite + "% de réussite** du MoonBreak (" + moonsize + "km) avec " + nbrip_reste + " vagues de " + (nbrip_vague + 1) + " et " + (6 - nbrip_reste) + " vagues de " + nbrip_vague + " RIP.";
 		}
 
 	}
 	else {
 
 		if (nbrip_reste === 1) {
-			mbspeak = "Réussite du MoonBreak (" + moonsize + "km): **" + proba_reussite + "%** avec 1 vague de " + (nbrip_vague + 1) + " RIP.";
+			mbspeak = "**" + proba_reussite + "% de réussite** du MoonBreak (" + moonsize + "km) avec 1 vague de " + (nbrip_vague + 1) + " RIP.";
 		}
 		else {
-			mbspeak = "Réussite du MoonBreak (" + moonsize + "km): **" + proba_reussite + "%** avec " + nbrip_reste + " vagues de " + (nbrip_vague + 1) + " RIP.";
+			mbspeak = "**" + proba_reussite + "% de réussite** du MoonBreak (" + moonsize + "km) avec " + nbrip_reste + " vagues de " + (nbrip_vague + 1) + " RIP.";
 		}
 
 	}
 
-	const pertes = getLossesStats(moonsize, nbrip);
+	const { pertes, min1, max1, min2, max2, min3, max3 } = getLosses(moonsize, nbrip);
 
-	mbspeak += "\n    => *Pertes estimées:* ***" + pertes + "*** *RIP détruite(s)*";
+
+
+	//On utilise alors les propriétés de répartitions autour d'une gaussienne avec l'écart type
+	mbspeak = mbspeak + "\n\n*• 68% de chance de perdre entre* ***" + min1 + "*** *et* ***" + max1 + "*** *RIP. (faible estimation)*";
+	mbspeak = mbspeak + "\n*• 95% de chance de perdre entre* ***" + min2 + "*** *et* ***" + max2 + "*** *RIP. (meilleur compromis)*";
+	mbspeak = mbspeak + "\n*• 99% de chance de perdre entre* ***" + min3 + "*** *et* ***" + max3 + "*** *RIP. (très forte estimation)*";
+	mbspeak = mbspeak + "\n\n***Pertes moyennes: " + pertes + " RIP détruite(s)***";
+
 
 	return mbspeak;
 }
