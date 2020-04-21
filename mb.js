@@ -43,7 +43,7 @@ function getLosses(moonsize, nbrip) {
 	let max3 = Math.round(100 * Math.min((pertes + 3 * ecarttype), nbrip)) / 100;
 
 	//arrondi des pertes au centiemes
-	var pertes = Math.round(100 * pertes) / 100;
+	pertes = Math.round(100 * pertes) / 100;
 
 	return { pertes, min1, max1, min2, max2, min3, max3 };
 }
