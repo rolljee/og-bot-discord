@@ -1,8 +1,6 @@
 const Ogame = require('ogamejs');
 
-function prettify(x) {
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
+const { prettify } = require('./utils');
 
 function getCommerceMessage(message) {
 	const [command, resource, percent, rate, ...numbers] = message.split(' ');
