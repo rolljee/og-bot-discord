@@ -35,7 +35,7 @@ async function getExpeditions(message) {
 	const PT_number = Math.ceil(maxCapacity / (PT_FRET * (1 + factor)));
 
 	return `
-Sur ${data.name} le 1er à ${prettify(topScore)}
+Sur ${data.name} le 1er a ${prettify(topScore)}
 Un explorateur avec hyperespace: ${hyperespace} + un pathfinder
 Trouvaille maximale: ${prettify(maxCapacity)}
 Nombre de GT: ${GT_number}

@@ -9,6 +9,7 @@ async function getUniverseData(msg) {
 Serveur: ${data.name}
 Vitesse d'uni: ${data.speed}
 Vitesse de flotte: ${data.speedFleet}
+Vitesse de recherche: ${data.speed}
 Consommation deut: ${data.globalDeuteriumSaveFactor}
 Débris dans le cdr: ${Number(data.debrisFactor) * 100}%
 Points du premier: ${prettify(data.topScore)}
