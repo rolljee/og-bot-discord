@@ -29,7 +29,8 @@ async function getPlayerData(universe, lang, playerId) {
 	const result = await parser.parseStringPromise(xml);
 	return {
 		position: result.playerData.positions[0].position,
-		planets: result.playerData.planets[0].planet
+		planets: result.playerData.planets[0].planet,
+		lastUpdate: result.playerData.$.timestamp,
 	};
 }
 
@@ -77,21 +78,9 @@ function getTypeLongName(target) {
 }
 
 function getMessageContent(universe, lang, playerName, playerInformations, planets) {
-	let informationMessage = '';
-	for (const information of playerInformations.position) {
-		if ([0, 3].includes(Number(information.$.type))) {
-			informationMessage += `${information._} ${getTypeLongName(information.$.type)} ${prettify(information.$.score)}`;
-			if (information.$.ships) {
-				informationMessage += `\nVaisseaux (☠️ ${information.$.ships})`
-			}
-			informationMessage += '\n';
-		}
-	}
 	const embed = new Discord.MessageEmbed()
 		.setTitle(`${playerName}: ${planets.length} planètes`)
 		.setColor('#000000');
-
-	embed.addField(`Points`, informationMessage);
 
 	let str = '';
 	let previousGalaxy = 0;
@@ -123,6 +112,22 @@ function getMessageContent(universe, lang, playerName, playerInformations, plane
 			embed.addField(`G${previousGalaxy}`, str)
 		}
 	}
+
+	let informationMessage = '';
+	for (const information of playerInformations.position) {
+		if ([0, 3].includes(Number(information.$.type))) {
+			informationMessage += `${information._} ${getTypeLongName(information.$.type)} ${prettify(information.$.score)}\n`;
+			if (information.$.ships) {
+				informationMessage += `☠️ ${prettify(information.$.ships)}\n`
+			}
+		}
+	}
+
+	embed.addField(`Points`, informationMessage);
+	const timestamp = Number(playerInformations.lastUpdate) * 1000;
+	const date = new Date(timestamp).toLocaleDateString("fr-FR")
+	const time = new Date(timestamp).toLocaleTimeString("fr-FR")
+	embed.addField(`Dernière maj`, `${date} ${time}`);
 
 
 	return embed;
