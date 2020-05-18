@@ -118,7 +118,7 @@ function getMessageContent(universe, lang, playerName, playerInformations, plane
 		if ([0, 3].includes(Number(information.$.type))) {
 			informationMessage += `${information._} ${getTypeLongName(information.$.type)} ${prettify(information.$.score)}\n`;
 			if (information.$.ships) {
-				informationMessage += `☠️ ${prettify(information.$.ships)}\n`
+				informationMessage += `Vaisseaux ${prettify(information.$.ships)}\n`
 			}
 		}
 	}
@@ -165,7 +165,7 @@ async function processInput(msg) {
 	const planets = mergedPlanets(planetsFromUniverse, playerInformations.planets);
 	const message = getMessageContent(universe, lang, playerName, playerInformations, planets);
 
-	return message
+	return message;
 }
 
 module.exports = {
