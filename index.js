@@ -5,6 +5,7 @@ const { getExpeditions } = require("./expeditions");
 const { getUniverseData } = require("./serverData");
 const { moonBreak } = require("./mb");
 const { processInput } = require("./players");
+const { createLink } = require("./create-link");
 
 const client = new Discord.Client();
 
@@ -31,6 +32,10 @@ function getHelpMessage() {
     .addField(
       "`!oge <n°> <lang> <niveau de recherche hyperespace>`",
       "Affiche les informations d'expedition d'un serveur\n\u200b",
+    )
+    .addField(
+      "`!ogl <n°> <lang|fr> <pos>`",
+      "Affiche un lien vers la position donnée + info de lune\n\u200b",
     )
     .addField("`!mb <taille> <Rips>`", "Calcul de probabilites d'un moonbreak");
 
@@ -66,6 +71,9 @@ client.on("message", async (msg) => {
       msg.channel.send(message);
     } else if (msg.content.startsWith("!oge")) {
       const message = await getExpeditions(msg.content);
+      msg.channel.send(message);
+    } else if (msg.content.startsWith("!ogl")) {
+      const message = await createLink(msg.content);
       msg.channel.send(message);
     } else if (msg.content.startsWith("!og help")) {
       msg.channel.send(getHelpMessage());
