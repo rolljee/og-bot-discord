@@ -3,27 +3,14 @@ const { prettify, parseServerData } = require('./utils');
 const Ogame = require("ogamejs");
 
 function getMoonPercent(data) {
-	const Fleets = Ogame.default.Fleets;
 	const models = Ogame.default.models.Destroyable;
-	let totalCle = 0
-	let cle = 1
-	while (totalCle <= 2000000) {
-		const { metal, crystal } = Fleets.getDebris(models[1], cle, data.debrisFactor);
-		totalCle = metal + crystal;
-		cle++;
-	}
 
-	totalProbe = 0
-	probe = 1;
-	while (totalProbe <= 2000000) {
-		const { metal, crystal } = Fleets.getDebris(models[15], probe, data.debrisFactor);
-		totalProbe = metal + crystal;
-		probe++;
-	}
+	const cle = models[1].cost.metal + models[1].cost.crystal;
+	const probe = models[15].cost.metal + models[15].cost.crystal;
 
 	return {
-		cle,
-		probe
+		cle: Math.ceil(2000000 / (data.debrisFactor * cle)),
+		probe: Math.ceil(2000000 / (data.debrisFactor * probe))
 	}
 }
 
