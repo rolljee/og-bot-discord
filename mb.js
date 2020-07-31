@@ -1,5 +1,5 @@
 function parseInput(msg) {
-  const split = msg.split(" "); //Split des arguments
+  const split = msg.split(' '); //Split des arguments
 
   let parsed_tab = [];
 
@@ -8,7 +8,9 @@ function parseInput(msg) {
   for (let i = 0; i < split.length; i++) {
     num = parseInt(split[i], 10);
 
-    if (num > 0) parsed_tab.push(num);
+    if (num > 0) {
+      parsed_tab.push(num);
+    }
   }
 
   return parsed_tab;
@@ -24,8 +26,11 @@ function getLosses(moonsize, nbrip, nb_attaquant) {
 
   let nb_vague;
 
-  if (nbrip >= nb_attaquant * 6) nb_vague = nb_attaquant * 6;
-  else nb_vague = nbrip;
+  if (nbrip >= nb_attaquant * 6) {
+    nb_vague = nb_attaquant * 6;
+  } else {
+    nb_vague = nbrip;
+  }
 
   //proba d'echec d'une vague moyenne de rip
   const proba_moyenne = (100 - Math.sqrt(moonsize)) *
@@ -77,8 +82,10 @@ function moonBreak(message) {
   let check_rip = false;
 
   if (nb_joueur > 0) { //il faut au moins un attaquant
-    for (var i = 1; i <= nb_joueur; i++) {
-      if (tab[i] < 0) check_rip = true; //On vérifie que tout les nombres rentrés sont positifs
+    for (let i = 1; i <= nb_joueur; i++) {
+      if (tab[i] < 0) {
+        check_rip = true; //On vérifie que tout les nombres rentrés sont positifs
+      }
     }
   } else {
     check_rip = true; //sinon erreur
@@ -86,7 +93,7 @@ function moonBreak(message) {
 
   // Valiadation des conditions
   if (moonsize < 3464 || moonsize > 8944 || check_rip) {
-    return "Erreur dans les paramètres.\n    Usage: !mb <TailleLune> <Nombre_RIP_J1> [<Nombre_RIP_J2>] [<Nombre_RIP_J3>] ... [<Nombre_RIP_JN>]\n\nTaille de la lune compris entre 3464km et 8944km.\nNombre_RIP un nombre entier positif.\nEntre 1 et 4 attaquant(s) au plus.";
+    return 'Erreur dans les paramètres.\n    Usage: !mb <TailleLune> <Nombre_RIP_J1> [<Nombre_RIP_J2>] [<Nombre_RIP_J3>] ... [<Nombre_RIP_JN>]\n\nTaille de la lune compris entre 3464km et 8944km.\nNombre_RIP un nombre entier positif.\nEntre 1 et 4 attaquant(s) au plus.';
   }
 
   let vague_joueur = [];
@@ -96,7 +103,7 @@ function moonBreak(message) {
   let proba_echec = 1;
   let proba_full_echec = 1; //proba initiale que x mb echouent
 
-  for (var j = 1; j <= nb_joueur; j++) {
+  for (let j = 1; j <= nb_joueur; j++) {
     let nbrip = tab[j];
 
     let nbrip_vague = Math.floor(nbrip / 6); //Nb de rip par vague
@@ -107,7 +114,9 @@ function moonBreak(message) {
     if (nbrip_reste === 0) { //S'il n'y a pas de reste, on calcul la proba des 6vagues consécutives de y RIPs
       //Proba pourcent de moonbreak (formule officielle)
       proba_mb = ((100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip_vague)) / 100;
-      if (proba_mb > 1) proba_mb = 1; //Caution si la proba est > 1
+      if (proba_mb > 1) {
+        proba_mb = 1; //Caution si la proba est > 1
+      }
 
       proba_echec = 1 - proba_mb; //proba d'echec
 
@@ -116,7 +125,9 @@ function moonBreak(message) {
       //proba pourcent de mb (formule officielle) pour une vague de nbrip_vague+1
       proba_mb = ((100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip_vague + 1)) /
         100;
-      if (proba_mb > 1) proba_mb = 1; //Caution si la proba est > 1
+      if (proba_mb > 1) {
+        proba_mb = 1; //Caution si la proba est > 1
+      }
 
       proba_echec = 1 - proba_mb; //proba d'échec
 
@@ -124,7 +135,9 @@ function moonBreak(message) {
 
       //proba pourcent de mb (formule officielle) pour une vague de nbrip_vague
       proba_mb = (100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip_vague) / 100;
-      if (proba_mb > 1) proba_mb = 1; //Caution si la proba est > 1
+      if (proba_mb > 1) {
+        proba_mb = 1; //Caution si la proba est > 1
+      }
 
       proba_echec = 1 - proba_mb; //proba d'échec
 
@@ -134,56 +147,54 @@ function moonBreak(message) {
 
   const proba_reussite = Math.round((1 - proba_full_echec) * 10000) / 100; //calcul de la proba de ne pas echouer tout arrondi au centième
 
-  let mbspeak = "";
+  let mbspeak = '';
 
-  if (nb_joueur == 1) {
-    mbspeak = "__**" + proba_reussite + "% de réussite du MoonBreak**__ (" +
-      moonsize + "km) avec ";
+  if (nb_joueur === 1) {
+    mbspeak = '__**' + proba_reussite + '% de réussite du MoonBreak**__ (' +
+      moonsize + 'km) avec ';
   } else {
-    mbspeak = "__**" + proba_reussite + "% de réussite du MoonBreak**__ (" +
-      moonsize + "km) par " + nb_joueur + " attaquants :\n\n";
+    mbspeak = '__**' + proba_reussite + '% de réussite du MoonBreak**__ (' +
+      moonsize + 'km) par ' + nb_joueur + ' attaquants :\n\n';
   }
 
-  for (var j = 1; j <= nb_joueur; j++) {
+  for (let j = 1; j <= nb_joueur; j++) {
     let nbrip = tab[j];
     let nbrip_vague = vague_joueur[j - 1];
     let nbrip_reste = reste_joueur[j - 1];
 
     if (nb_joueur > 1) {
-      mbspeak += "-> Attaquant #" + j + " *(" + nbrip + " RIP)* : ";
+      mbspeak += '-> Attaquant #' + j + ' *(' + nbrip + ' RIP)* : ';
     }
 
     if (nbrip >= 6) { //préparation du msg de retour
       switch (nbrip_reste) {
         case 0:
-          mbspeak = mbspeak + "***6 vagues de " + nbrip_vague + " RIP.***\n";
+          mbspeak = mbspeak + '***6 vagues de ' + nbrip_vague + ' RIP.***\n';
           break;
         case 1:
-          mbspeak = mbspeak + "***1 vague de " + (nbrip_vague + 1) +
-            " et 5 vagues de " + nbrip_vague + " RIP.***\n";
+          mbspeak = mbspeak + '***1 vague de ' + (nbrip_vague + 1) +
+            ' et 5 vagues de ' + nbrip_vague + ' RIP.***\n';
           break;
         case 5:
-          mbspeak = mbspeak + "***5 vagues de " + (nbrip_vague + 1) +
-            " et 1 vague de " + nbrip_vague + " RIP.***\n";
+          mbspeak = mbspeak + '***5 vagues de ' + (nbrip_vague + 1) +
+            ' et 1 vague de ' + nbrip_vague + ' RIP.***\n';
           break;
         default:
-          mbspeak = mbspeak + "***" + nbrip_reste + " vagues de " +
-            (nbrip_vague + 1) + " et " + (6 - nbrip_reste) + " vagues de " +
-            nbrip_vague + " RIP.***\n";
+          mbspeak = mbspeak + '***' + nbrip_reste + ' vagues de ' +
+            (nbrip_vague + 1) + ' et ' + (6 - nbrip_reste) + ' vagues de ' +
+            nbrip_vague + ' RIP.***\n';
       }
+    } else if (nbrip_reste === 1) {
+      mbspeak = mbspeak + '***1 vague de ' + (nbrip_vague + 1) + ' RIP.***\n';
     } else {
-      if (nbrip_reste === 1) {
-        mbspeak = mbspeak + "***1 vague de " + (nbrip_vague + 1) + " RIP.***\n";
-      } else {
-        mbspeak = mbspeak + "***" + nbrip_reste + " vagues de " +
-          (nbrip_vague + 1) + " RIP.***\n";
-      }
+      mbspeak = mbspeak + '***' + nbrip_reste + ' vagues de ' +
+        (nbrip_vague + 1) + ' RIP.***\n';
     }
   }
 
   let total_rip = 0;
 
-  for (var i = 1; i <= nb_joueur; i++) {
+  for (let i = 1; i <= nb_joueur; i++) {
     total_rip += tab[i];
   }
 
@@ -194,15 +205,15 @@ function moonBreak(message) {
   );
 
   //On utilise alors les propriétés de répartitions autour d'une gaussienne avec l'écart type
-  mbspeak = mbspeak + "\n**Estimation des pertes totales:**";
-  mbspeak = mbspeak + "\n        • *68% de chance de perdre entre* " + min1 +
-    " *et* " + max1 + " *RIP. (faible estimation)*";
-  mbspeak = mbspeak + "\n        • *95% de chance de perdre entre* " + min2 +
-    " *et* " + max2 + " *RIP. (meilleur compromis)*";
-  mbspeak = mbspeak + "\n        • *99% de chance de perdre entre* " + min3 +
-    " *et* " + max3 + " *RIP. (très forte estimation)*";
-  mbspeak = mbspeak + "\n        ***Pertes moyennes: " + pertes +
-    " RIP détruite(s) sur " + total_rip + "***\n\n";
+  mbspeak = mbspeak + '\n**Estimation des pertes totales:**';
+  mbspeak = mbspeak + '\n        • *68% de chance de perdre entre* ' + min1 +
+    ' *et* ' + max1 + ' *RIP. (faible estimation)*';
+  mbspeak = mbspeak + '\n        • *95% de chance de perdre entre* ' + min2 +
+    ' *et* ' + max2 + ' *RIP. (meilleur compromis)*';
+  mbspeak = mbspeak + '\n        • *99% de chance de perdre entre* ' + min3 +
+    ' *et* ' + max3 + ' *RIP. (très forte estimation)*';
+  mbspeak = mbspeak + '\n        ***Pertes moyennes: ' + pertes +
+    ' RIP détruite(s) sur ' + total_rip + '***\n\n';
 
   return mbspeak;
 }

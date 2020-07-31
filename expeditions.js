@@ -1,4 +1,4 @@
-const { parseServerData, prettify } = require("./utils");
+const { parseServerData, prettify } = require('./utils');
 
 function cargoCapacity(speed, points, hasPathFinder) {
   const levels = [
@@ -6,12 +6,13 @@ function cargoCapacity(speed, points, hasPathFinder) {
     { level: 100000, base: 500000 },
     { level: 1000000, base: 1200000 },
     { level: 5000000, base: 1800000 },
-    { level: 5000000, base: 2400000 },
-    { level: 25000000, base: 3000000 },
-    { level: 50000000, base: 3600000 },
-    { level: 75000000, base: 4200000 },
+    { level: 25000000, base: 2400000 },
+    { level: 50000000, base: 3000000 },
+    { level: 75000000, base: 3600000 },
+    { level: 100000000, base: 4200000 },
     { level: 100000000, base: 5000000 },
   ];
+
   const correspondance = levels.find((level) => points < level.level);
   const base = correspondance && correspondance.base
     ? correspondance.base
@@ -23,7 +24,7 @@ function cargoCapacity(speed, points, hasPathFinder) {
 }
 
 async function getExpeditions(message) {
-  const [command, universe, lang, hyperespace] = message.split(" ");
+  const [command, universe, lang, hyperespace] = message.split(' ');
   const data = await parseServerData(universe, lang);
   const universeSpeed = Number(data.speed);
   const topScore = Number(data.topScore);

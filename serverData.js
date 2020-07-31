@@ -2,10 +2,10 @@ const { prettify, parseServerData } = require('./utils');
 
 
 async function getUniverseData(msg) {
-	const [command, universe, lang] = msg.split(' ');
-	const data = await parseServerData(universe, lang);
+  const [command, universe, lang] = msg.split(' ');
+  const data = await parseServerData(universe, lang);
 
-	return `
+  return `
 Serveur: ${data.name}
 Vitesse d'uni: ${data.speed}
 Vitesse de flotte: ${data.speedFleet}
@@ -24,5 +24,5 @@ Fret dans les sondes: ${Number(data.probeCargo) === 1 ? 'oui' : 'non'}
 
 
 module.exports = {
-	getUniverseData,
-}
+  getUniverseData,
+};
