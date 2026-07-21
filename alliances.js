@@ -1,10 +1,11 @@
-const Discord = require('discord.js');
-const { searchAlliances } = require('./alliances.utils');
-const { getPlayersNameByIds } = require('./players.utils');
+import { EmbedBuilder } from 'discord.js';
 
-async function getAlliance(msg) {
-  const [command, universe, lang, ...alliances] = msg.split(' ');
-  if (!universe || !lang || !alliances) {
+import { searchAlliances } from './alliances.utils.js';
+import { getPlayersNameByIds } from './players.utils.js';
+
+export async function getAlliance(msg) {
+  const [, universe, lang, ...alliances] = msg.split(' ');
+  if (!universe || !lang || !alliances.length) {
     throw new Error('failed');
   }
 
@@ -13,19 +14,16 @@ async function getAlliance(msg) {
 
   const result = _alliances.find(alliance => alliance.name === allianceName || alliance.tag === allianceName);
   if (result) {
-    const embed = new Discord.MessageEmbed()
-      .setTitle(`${result.name}: ${result.homepage ? result.homepage : ''}`)
-      .setColor('#000000');
-
     const members = await getPlayersNameByIds(universe, lang, result.members);
-    console.log(members);
 
-    embed.addField('membres', members.map(member => member.$.name).join('\n\u200b'));
-
-    return embed;
+    return new EmbedBuilder()
+      .setTitle(`${result.name}: ${result.homepage ? result.homepage : ''}`)
+      .setColor('#000000')
+      .addFields({
+        name: 'membres',
+        value: members.map(member => member.$.name).join('\n​'),
+      });
   }
 
   return 'Pas d\'alliance avec ce nom';
 }
-
-module.exports = { getAlliance };

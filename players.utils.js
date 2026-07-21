@@ -1,8 +1,7 @@
-const fetch = require('node-fetch');
-const parser = require('xml2js');
-const unionBy = require('lodash/unionBy');
+import unionBy from 'lodash/unionBy.js';
+import parser from 'xml2js';
 
-async function getplayerIdByname(universe, lang, playerName) {
+export async function getplayerIdByname(universe, lang, playerName) {
   const url = `https://s${universe}-${lang}.ogame.gameforge.com/api/players.xml`;
   const response = await fetch(url);
   const xml = await response.text();
@@ -11,7 +10,7 @@ async function getplayerIdByname(universe, lang, playerName) {
   return players.find(player => player.$.name === playerName);
 }
 
-async function getPlayersNameByIds(universe, lang, playerIds) {
+export async function getPlayersNameByIds(universe, lang, playerIds) {
   const url = `https://s${universe}-${lang}.ogame.gameforge.com/api/players.xml`;
   const response = await fetch(url);
   const xml = await response.text();
@@ -20,7 +19,7 @@ async function getPlayersNameByIds(universe, lang, playerIds) {
   return players.filter(player => playerIds.includes(player.$.id));
 }
 
-async function getPlayerPlanetsFromUniverse(universe, lang, playerId) {
+export async function getPlayerPlanetsFromUniverse(universe, lang, playerId) {
   const url = `https://s${universe}-${lang}.ogame.gameforge.com/api/universe.xml`;
   const response = await fetch(url);
   const xml = await response.text();
@@ -29,7 +28,7 @@ async function getPlayerPlanetsFromUniverse(universe, lang, playerId) {
   return planets.filter(planet => planet.$.player === playerId);
 }
 
-async function getPlayerData(universe, lang, playerId) {
+export async function getPlayerData(universe, lang, playerId) {
   const url = `https://s${universe}-${lang}.ogame.gameforge.com/api/playerData.xml?id=${playerId}`;
   const response = await fetch(url);
   const xml = await response.text();
@@ -41,7 +40,7 @@ async function getPlayerData(universe, lang, playerId) {
   };
 }
 
-function mergePlanets(planetsFromUniverse, planetsFromPlayerData) {
+export function mergePlanets(planetsFromUniverse, planetsFromPlayerData) {
   return unionBy(planetsFromUniverse, planetsFromPlayerData, '$.id')
     .sort((a, b) => {
       const [aGalaxy, aSystem, aPosition] = a.$.coords.split(':');
@@ -54,16 +53,6 @@ function mergePlanets(planetsFromUniverse, planetsFromPlayerData) {
         return aSystem - bSystem;
       }
 
-      if (Number(aPosition) !== Number(bPosition)) {
-        return aPosition - bPosition;
-      }
+      return aPosition - bPosition;
     });
 }
-
-module.exports = {
-  getplayerIdByname,
-  getPlayersNameByIds,
-  getPlayerPlanetsFromUniverse,
-  getPlayerData,
-  mergePlanets
-};

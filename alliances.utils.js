@@ -1,7 +1,6 @@
-const fetch = require('node-fetch');
-const parser = require('xml2js');
+import parser from 'xml2js';
 
-async function searchAlliances(lang, universe) {
+export async function searchAlliances(lang, universe) {
   const url = `https://s${universe}-${lang}.ogame.gameforge.com/api/alliances.xml`;
   const response = await fetch(url);
   const xml = await response.text();
@@ -20,7 +19,6 @@ async function searchAlliances(lang, universe) {
         if (member.$ && member.$.id) {
           _members.push(member.$.id);
         }
-
       }
 
       _alliances.push({
@@ -33,9 +31,6 @@ async function searchAlliances(lang, universe) {
         members: _members,
       });
     }
-
   }
   return _alliances;
 }
-
-module.exports = { searchAlliances };

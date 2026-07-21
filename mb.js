@@ -73,7 +73,7 @@ function getLosses(moonsize, nbrip, nb_attaquant) {
   return { pertes, min1, max1, min2, max2, min3, max3 };
 }
 
-function moonBreak(message) {
+export function moonBreak(message) {
   const msg = message.substring(4);
   const tab = parseInput(msg);
   const moonsize = tab[0];
@@ -99,8 +99,8 @@ function moonBreak(message) {
   let vague_joueur = [];
   let reste_joueur = [];
 
-  let proba_mb = 1;
-  let proba_echec = 1;
+  let proba_mb;
+  let proba_echec;
   let proba_full_echec = 1; //proba initiale que x mb echouent
 
   for (let j = 1; j <= nb_joueur; j++) {
@@ -147,7 +147,7 @@ function moonBreak(message) {
 
   const proba_reussite = Math.round((1 - proba_full_echec) * 10000) / 100; //calcul de la proba de ne pas echouer tout arrondi au centième
 
-  let mbspeak = '';
+  let mbspeak;
 
   if (nb_joueur === 1) {
     mbspeak = '__**' + proba_reussite + '% de réussite du MoonBreak**__ (' +
@@ -217,7 +217,3 @@ function moonBreak(message) {
 
   return mbspeak;
 }
-
-module.exports = {
-  moonBreak,
-};

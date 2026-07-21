@@ -1,4 +1,4 @@
-const { parseServerData, prettify } = require('./utils');
+import { parseServerData, prettify } from './utils.js';
 
 function cargoCapacity(speed, points, hasPathFinder) {
   const levels = [
@@ -23,8 +23,8 @@ function cargoCapacity(speed, points, hasPathFinder) {
   return Math.max(1E3 * value, 2E5) * 0.001;
 }
 
-async function getExpeditions(message) {
-  const [command, universe, lang, hyperespace] = message.split(' ');
+export async function getExpeditions(message) {
+  const [, universe, lang, hyperespace] = message.split(' ');
   const data = await parseServerData(universe, lang);
   const universeSpeed = Number(data.speed);
   const topScore = Number(data.topScore);
@@ -45,7 +45,3 @@ Nombre de GT: ${GT_number}
 Nombre de PT: ${PT_number}
 	`;
 }
-
-module.exports = {
-  getExpeditions,
-};
