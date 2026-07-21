@@ -1,18 +1,13 @@
-FROM node:lts as build
-
-ARG DISCORD_TOKEN
-ENV DISCORD_TOKEN=${DISCORD_TOKEN}
+FROM node:24-alpine
 
 WORKDIR /app
+
+# Install production dependencies from the lockfile for reproducible builds
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
 COPY . ./
-RUN npm install
 
-FROM node:lts as production
-
-ARG DISCORD_TOKEN
-ENV DISCORD_TOKEN=${DISCORD_TOKEN}
-
-WORKDIR /app
-COPY --from=build /app /app
-
+# DISCORD_TOKEN is provided at runtime (docker run -e DISCORD_TOKEN=...),
+# never baked into the image.
 CMD ["npm", "start"]

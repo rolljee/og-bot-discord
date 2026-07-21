@@ -1,21 +1,29 @@
 {
-  "name": "bot",
-  "version": "1.0.0",
-  "description": "",
+  "name": "og-bot-discord",
+  "version": "2.0.0",
+  "description": "Discord bot for OGame: player/planet lookup, trade calculator, expeditions, moon-lock links, alliances and moonbreak probabilities.",
+  "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "start": "./scripts/start.sh",
+    "start": "node index.js",
     "deploy": "./scripts/deploy.sh",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint .",
+    "test": "node --test"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.1.1",
-    "eslint": "^6.8.0",
-    "lodash": "^4.17.15",
-    "node-fetch": "^2.6.0",
-    "ogamejs": "^2.1.2",
-    "xml2js": "^0.4.23"
+    "discord.js": "^14.27.0",
+    "lodash": "^4.18.1",
+    "ogamejs": "^3.0.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0"
   }
 }

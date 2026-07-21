@@ -1,6 +1,7 @@
-const Discord = require('discord.js');
-const { prettify } = require('./utils');
-const { getplayerIdByname, getPlayerPlanetsFromUniverse, getPlayerData, mergePlanets } = require('./players.utils');
+import { EmbedBuilder } from 'discord.js';
+
+import { prettify } from './utils.js';
+import { getplayerIdByname, getPlayerPlanetsFromUniverse, getPlayerData, mergePlanets } from './players.utils.js';
 
 function addPlanetText(universe, lang, planetObject) {
   try {
@@ -60,55 +61,54 @@ function getMilitaryInformations(playerInformations) {
 }
 
 function getMessageContent(universe, lang, playerName, playerInformations, planets) {
-  const embed = new Discord.MessageEmbed()
+  const embed = new EmbedBuilder()
     .setTitle(`${playerName}: ${planets.length} planètes`)
     .setColor('#000000');
 
   let str = '';
   let previousGalaxy = 0;
 
-  function addFieldText(galaxy, system, planetObject) {
-    embed.addField(`G${previousGalaxy}`, str);
+  function addFieldText(galaxy, planetObject) {
+    embed.addFields({ name: `G${previousGalaxy}`, value: str || '​' });
     str = addPlanetText(universe, lang, planetObject);
     previousGalaxy = galaxy;
   }
 
   for (let index = 0; index < planets.length; index++) {
     const planetObject = planets[index];
-    const [galaxy, system] = planetObject.$.coords.split(':');
+    const [galaxy] = planetObject.$.coords.split(':');
 
     if (index === 0) {
       previousGalaxy = galaxy;
     }
 
     if (isSuperiorOfDiscordCharLimit(str, universe, lang, planetObject)) {
-      addFieldText(galaxy, system, planetObject);
+      addFieldText(galaxy, planetObject);
     } else if (galaxy === previousGalaxy) {
       str += addPlanetText(universe, lang, planetObject);
     } else if (str) {
-      addFieldText(galaxy, system, planetObject);
+      addFieldText(galaxy, planetObject);
     }
 
     if (index === planets.length - 1) {
-      embed.addField(`G${previousGalaxy}`, str);
+      embed.addFields({ name: `G${previousGalaxy}`, value: str || '​' });
     }
   }
 
-  let informationMessage = getMilitaryInformations(playerInformations);
+  const informationMessage = getMilitaryInformations(playerInformations);
 
-  embed.addField('Points', informationMessage);
+  embed.addFields({ name: 'Points', value: informationMessage || '​' });
   const timestamp = Number(playerInformations.lastUpdate) * 1000;
   const date = new Date(timestamp).toLocaleDateString('fr-FR');
   const time = new Date(timestamp).toLocaleTimeString('fr-FR');
-  embed.addField('Dernière maj', `${date} ${time}`);
-
+  embed.addFields({ name: 'Dernière maj', value: `${date} ${time}` });
 
   return embed;
 }
 
-async function getPlayer(msg) {
-  const [command, universe, lang, ...player] = msg.split(' ');
-  if (!universe || !lang || !player) {
+export async function getPlayer(msg) {
+  const [, universe, lang, ...player] = msg.split(' ');
+  if (!universe || !lang || !player.length) {
     throw new Error('failed');
   }
 
@@ -117,9 +117,6 @@ async function getPlayer(msg) {
   const planetsFromUniverse = await getPlayerPlanetsFromUniverse(universe, lang, thePlayer.$.id);
   const playerInformations = await getPlayerData(universe, lang, thePlayer.$.id);
   const planets = mergePlanets(planetsFromUniverse, playerInformations.planets);
-  const message = getMessageContent(universe, lang, playerName, playerInformations, planets);
 
-  return message;
+  return getMessageContent(universe, lang, playerName, playerInformations, planets);
 }
-
-module.exports = { getPlayer };
