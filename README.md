@@ -49,26 +49,26 @@ All commands are triggered by a prefix in any channel the bot can read.
 
 ## Configuration
 
-The bot reads the `DISCORD_TOKEN` environment variable.
+The bot reads two environment variables:
 
-Copy the example env file and fill it in (git-ignored):
-
-```bash
-cp scripts/.env.example scripts/.env
-# edit scripts/.env and set DISCORD_TOKEN=...
-```
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DISCORD_TOKEN` | — | Bot token. Required; the process exits immediately without it. |
+| `PORT` | `8080` | Port of the health endpoint. |
 
 ## Run locally
 
 ```bash
 npm install
-./scripts/start.sh      # loads scripts/.env then runs `node index.js`
+DISCORD_TOKEN=your-token npm start
 ```
 
-Or without the helper script:
+Prefer a `.env` file? It is git-ignored, and Node reads it natively — no
+dependency needed:
 
 ```bash
-DISCORD_TOKEN=your-token npm start
+echo 'DISCORD_TOKEN=your-token' > .env
+node --env-file=.env index.js
 ```
 
 ## Run with Docker
@@ -81,15 +81,39 @@ docker run --name og-bot -d --restart unless-stopped \
   -e DISCORD_TOKEN=your-token og-bot:latest
 ```
 
+## Health endpoint
+
+The bot exposes a single HTTP route on `PORT` (default `8080`), used by
+container platforms to tell a live bot from a stuck one:
+
+```
+GET /health  ->  200 {"status":"ok","user":"…","guilds":3,"uptime":42}
+             ->  503 {"status":"connecting", …}  while the gateway is down
+```
+
 ## Deploy
 
-`scripts/deploy.sh` SSHes into a host, pulls `master`, rebuilds the image and
-restarts the container. It needs `USER`, `IP_ADDR` and `DISCORD_TOKEN` in
-`scripts/.env`.
+Deployment is fully automated. Pushing to `master` runs
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which lints and
+tests, builds and pushes the image to GHCR, then asks Scaleway Serverless
+Containers to redeploy it and waits until the container reports `ready`.
 
-```bash
-npm run deploy
-```
+The bot runs as a single always-on instance (`min_scale = max_scale = 1`): it
+holds a persistent gateway connection, so it must never be scaled to zero, and
+never run twice — two instances would answer every command twice.
+
+Infrastructure lives in a separate repository and is managed with Terraform.
+This repository never runs Terraform; it only needs three secrets:
+
+| Secret | Purpose |
+| --- | --- |
+| `SCW_SECRET_KEY` | Scoped IAM key, containers only, single project |
+| `SCW_CONTAINER_ID` | Container to redeploy |
+| `SCW_REGION` | Scaleway region, e.g. `fr-par` |
+
+`DISCORD_TOKEN` is **not** among them. It is stored as an encrypted environment
+variable on the container itself and injected at startup, so it never reaches
+the CI and is never present in an image layer.
 
 ## Development
 
