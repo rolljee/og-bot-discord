@@ -26,6 +26,21 @@ jobs:
 
       - run: npm test
 
+      # deploy.yml ne se déclenche que sur `master` : sans cette étape, une
+      # erreur de syntaxe ou de contexte dans ce fichier ne serait découverte
+      # qu'après le merge, workflow en échec et image non publiée.
+      #
+      # Binaire téléchargé depuis une release épinglée plutôt qu'un script
+      # `curl | bash`, pour ne pas exécuter du code non versionné en CI.
+      - name: Lint des workflows GitHub Actions
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+        run: |
+          set -euo pipefail
+          curl -sSfL "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            | tar -xz actionlint
+          ./actionlint -color
+
       # Vérifie que l'image se construit, sans la pousser : une PR qui casse le
       # Dockerfile doit échouer ici plutôt qu'au merge sur master.
       - name: Build de contrôle de l'image
