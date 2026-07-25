@@ -1,6 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 
-import { prettify } from './utils.js';
+import { UserError } from './errors.js';
+import { parseNamedCommand, prettify } from './utils.js';
 import { getplayerIdByname, getPlayerPlanetsFromUniverse, getPlayerData, mergePlanets } from './players.utils.js';
 
 function addPlanetText(universe, lang, planetObject) {
@@ -107,13 +108,13 @@ function getMessageContent(universe, lang, playerName, playerInformations, plane
 }
 
 export async function getPlayer(msg) {
-  const [, universe, lang, ...player] = msg.split(' ');
-  if (!universe || !lang || !player.length) {
-    throw new Error('failed');
+  const { universe, lang, name: playerName } = parseNamedCommand(msg);
+
+  const thePlayer = await getplayerIdByname(universe, lang, playerName);
+  if (!thePlayer) {
+    throw new UserError(`Aucun joueur nommé \`${playerName}\` sur s${universe}-${lang} (le nom est sensible à la casse).`);
   }
 
-  const playerName = player.join(' ');
-  const thePlayer = await getplayerIdByname(universe, lang, playerName);
   const planetsFromUniverse = await getPlayerPlanetsFromUniverse(universe, lang, thePlayer.$.id);
   const playerInformations = await getPlayerData(universe, lang, thePlayer.$.id);
   const planets = mergePlanets(planetsFromUniverse, playerInformations.planets);

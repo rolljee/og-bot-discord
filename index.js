@@ -3,6 +3,7 @@ import { Client, GatewayIntentBits, EmbedBuilder } from 'discord.js';
 import { createLink } from './create-link.js';
 import { getAlliance } from './alliances.js';
 import { getCommerceMessage } from './commerce.js';
+import { UserError } from './errors.js';
 import { getExpeditions } from './expeditions.js';
 import { getPlayer } from './players.js';
 import { getUniverseData } from './serverData.js';
@@ -70,6 +71,13 @@ client.on('messageCreate', async (msg) => {
       await reply(msg.channel, getHelpMessage());
     }
   } catch (error) {
+    // Sans ça, une recherche qui ne trouve rien renvoyait l'aide générique, donc
+    // impossible de distinguer une faute de syntaxe d'un nom introuvable.
+    if (error instanceof UserError) {
+      await reply(msg.channel, error.message);
+      return;
+    }
+
     console.error(error);
     await reply(msg.channel, getHelpMessage());
   }
