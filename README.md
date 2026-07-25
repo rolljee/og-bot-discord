@@ -44,8 +44,36 @@ All commands are triggered by a prefix in any channel the bot can read.
 2. Add a **Bot** and copy its token.
 3. Under **Bot → Privileged Gateway Intents**, enable **Message Content Intent**.
    The bot reads message text to detect commands and will not work without it.
-4. Invite the bot to your server with the `bot` scope and the
-   *Send Messages* / *Read Message History* permissions.
+   Without it, `client.login()` fails outright with `Used disallowed intents`.
+4. Invite the bot to your server (see below).
+
+## Invite the bot
+
+Replace `YOUR_APPLICATION_ID` with the Application ID from the Developer Portal:
+
+```
+https://discord.com/oauth2/authorize?client_id=YOUR_APPLICATION_ID&permissions=84992&scope=bot
+```
+
+`permissions=84992` is the minimum this bot actually needs:
+
+| Permission | Value | Why |
+| --- | --- | --- |
+| View Channels | 1024 | read the channels commands are typed in |
+| Send Messages | 2048 | plain-text replies |
+| Embed Links | 16384 | `!og help`, `!ogp`, `!oga` reply with embeds |
+| Read Message History | 65536 | channel read context |
+
+**Embed Links is the one that is easy to miss.** Without it the bot connects,
+sees commands, and silently fails on every command that replies with an embed —
+which is most of them. The `catch` in `index.js` then tries to send the help
+message, which is *also* an embed, so nothing appears at all.
+
+No `applications.commands` scope: this bot uses prefix commands (`!ogp`, `!mb`),
+not slash commands.
+
+If the bot joins but stays silent, check channel-level permission overrides
+first — they take precedence over the role permissions granted by this link.
 
 ## Configuration
 
