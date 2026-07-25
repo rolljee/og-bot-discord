@@ -32,9 +32,11 @@ function getLosses(moonsize, nbrip, nb_attaquant) {
     nb_vague = nbrip;
   }
 
-  //proba d'echec d'une vague moyenne de rip
-  const proba_moyenne = (100 - Math.sqrt(moonsize)) *
-    Math.sqrt(nbrip / nb_vague) / 100;
+  //proba de reussite d'une vague moyenne de rip, plafonnée à 1 comme dans la formule officielle
+  const proba_moyenne = Math.min(
+    (100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip / nb_vague) / 100,
+    1,
+  );
   const proba_echec_moy = 1 - proba_moyenne;
 
   //proba de destruction d'une vague de rip moyenne

@@ -22,6 +22,15 @@ test('moonBreak supports several attackers', () => {
   assert.match(out, /2 attaquants/);
 });
 
+test('moonBreak caps the wave success probability at 1', () => {
+  // Petite lune + beaucoup de RIP par vague: la proba de réussite dépassait 1,
+  // ce qui rendait la proba d'échec négative (pertes négatives, bandes NaN).
+  const out = moonBreak('!mb 3464 200');
+  assert.match(out, /Pertes moyennes: 9\.81 RIP/);
+  assert.match(out, /68% de chance de perdre entre\* 7\.18 \*et\* 12\.44/);
+  assert.doesNotMatch(out, /NaN|-\d/);
+});
+
 test('moonBreak rejects out-of-range moon size', () => {
   const out = moonBreak('!mb 1000 100');
   assert.match(out, /Erreur dans les paramètres/);
