@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 240" width="680" height="240" role="img" aria-label="og-bot-discord — OGame companion for Discord">
+  <title>og-bot-discord</title>
+
+  <defs>
+    <linearGradient id="bspace" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050a12"/>
+      <stop offset="48%" stop-color="#0c1a2c"/>
+      <stop offset="100%" stop-color="#173352"/>
+    </linearGradient>
+
+    <radialGradient id="bmoon" cx="70%" cy="18%" r="90%">
+      <stop offset="0%" stop-color="#e6ecf3"/>
+      <stop offset="42%" stop-color="#a9b6c6"/>
+      <stop offset="78%" stop-color="#5d6b7d"/>
+      <stop offset="100%" stop-color="#2b3542"/>
+    </radialGradient>
+
+    <radialGradient id="bhull" cx="34%" cy="28%" r="90%">
+      <stop offset="0%" stop-color="#8b98a8"/>
+      <stop offset="55%" stop-color="#4a5563"/>
+      <stop offset="100%" stop-color="#1b2230"/>
+    </radialGradient>
+
+    <radialGradient id="bdish" cx="42%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#7ee3ff"/>
+      <stop offset="35%" stop-color="#2b96bd"/>
+      <stop offset="100%" stop-color="#123444"/>
+    </radialGradient>
+
+    <linearGradient id="bcrack" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff3c4"/>
+      <stop offset="35%" stop-color="#ffb03a"/>
+      <stop offset="100%" stop-color="#ff5b2e"/>
+    </linearGradient>
+
+    <linearGradient id="bbeam" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c9f6ff" stop-opacity="0"/>
+      <stop offset="25%" stop-color="#8fe9ff" stop-opacity=".95"/>
+      <stop offset="100%" stop-color="#3fd0ff" stop-opacity=".95"/>
+    </linearGradient>
+
+    <linearGradient id="bring" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4fd8ff" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#4fd8ff" stop-opacity=".45"/>
+      <stop offset="100%" stop-color="#4fd8ff" stop-opacity=".05"/>
+    </linearGradient>
+
+    <linearGradient id="wordmark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#a9c8dd"/>
+    </linearGradient>
+
+    <filter id="bsoftGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="btightGlow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="2.6"/>
+    </filter>
+    <filter id="bgrain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="7"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+
+    <clipPath id="frame"><rect width="680" height="240" rx="12"/></clipPath>
+    <clipPath id="bmoonClip"><circle cx="556" cy="252" r="132"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="680" height="240" fill="url(#bspace)"/>
+    <ellipse cx="560" cy="60" rx="240" ry="130" fill="#2a6f9e" opacity=".18" filter="url(#bsoftGlow)"/>
+    <rect width="680" height="240" filter="url(#bgrain)" opacity=".05"/>
+
+    <!-- starfield -->
+    <g fill="#eaf4ff">
+      <circle cx="34" cy="34" r="1.4" opacity=".7"/>
+      <circle cx="108" cy="196" r="1.1" opacity=".5"/>
+      <circle cx="186" cy="58" r="1.6" opacity=".75"/>
+      <circle cx="252" cy="212" r="1.2" opacity=".5"/>
+      <circle cx="318" cy="30" r="1.3" opacity=".6"/>
+      <circle cx="360" cy="150" r="1" opacity=".4"/>
+      <circle cx="404" cy="74" r="1.7" opacity=".8"/>
+      <circle cx="466" cy="24" r="1.2" opacity=".55"/>
+      <circle cx="612" cy="42" r="1.5" opacity=".65"/>
+      <circle cx="664" cy="118" r="1.3" opacity=".6"/>
+      <circle cx="500" cy="206" r="1.1" opacity=".45"/>
+      <circle cx="146" cy="120" r="1" opacity=".35"/>
+    </g>
+
+    <!-- orbital arc sweeping in from the wordmark side -->
+    <path d="M60 214 C 190 196, 330 176, 452 118 S 620 26, 692 34"
+          fill="none" stroke="url(#bring)" stroke-width="2.4"/>
+
+    <!-- ============ the moon, rising from the lower right ============ -->
+    <g transform="translate(-8 -20)">
+    <circle cx="556" cy="252" r="132" fill="url(#bmoon)"/>
+    <g clip-path="url(#bmoonClip)">
+      <g fill="#54626f" opacity=".55">
+        <ellipse cx="502" cy="196" rx="26" ry="22"/>
+        <ellipse cx="604" cy="174" rx="16" ry="14"/>
+        <ellipse cx="648" cy="264" rx="20" ry="17"/>
+        <ellipse cx="518" cy="320" rx="30" ry="25"/>
+        <ellipse cx="456" cy="264" rx="14" ry="12"/>
+      </g>
+      <g fill="#d6dee8" opacity=".35">
+        <ellipse cx="502" cy="190" rx="26" ry="20"/>
+        <ellipse cx="648" cy="258" rx="20" ry="15"/>
+      </g>
+
+      <!-- terminator -->
+      <circle cx="556" cy="252" r="132" fill="#050a12" opacity=".42"
+              transform="translate(-52 34)"/>
+
+      <!-- moonbreak fracture -->
+      <g stroke="url(#bcrack)" stroke-linecap="round" fill="none">
+        <path d="M644 172 L600 200 L624 224 L568 258 L586 292"
+              stroke-width="12" opacity=".35" filter="url(#bsoftGlow)"/>
+        <path d="M644 172 L600 200 L624 224 L568 258 L586 292" stroke-width="6"/>
+        <path d="M600 200 L548 188 M624 224 L672 238 M568 258 L516 246" stroke-width="3.2" opacity=".85"/>
+        <path d="M548 188 L512 170" stroke-width="1.8" opacity=".6"/>
+      </g>
+    </g>
+    <circle cx="556" cy="252" r="132" fill="none" stroke="#ffce7a" stroke-width="2.4"
+            opacity=".55" stroke-dasharray="105 724" stroke-dashoffset="176"/>
+    </g>
+
+    <!-- debris -->
+    <g fill="#c3ccd8">
+      <path d="M470 132 l11 2 -2 9 -10 -2z" opacity=".85" transform="rotate(18 476 137)"/>
+      <path d="M436 168 l8 1 -1 8 -8 -2z" opacity=".6" transform="rotate(-22 440 172)"/>
+      <path d="M498 206 l9 2 -2 8 -8 -2z" opacity=".55" transform="rotate(30 503 211)"/>
+      <circle cx="452" cy="206" r="2.4" opacity=".5"/>
+      <circle cx="516" cy="106" r="1.8" opacity=".45"/>
+    </g>
+
+    <!-- ============ the RIP ============ -->
+    <g>
+      <path d="M584 84 L636 152" stroke="url(#bbeam)" stroke-width="14"
+            stroke-linecap="round" opacity=".4" filter="url(#bsoftGlow)"/>
+      <path d="M584 84 L636 152" stroke="url(#bbeam)" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="636" cy="152" r="24" fill="#ffb03a" opacity=".3" filter="url(#bsoftGlow)"/>
+      <circle cx="636" cy="152" r="7" fill="#fff6d8" filter="url(#btightGlow)"/>
+    </g>
+
+    <g transform="translate(572 60)">
+      <circle r="58" fill="#4fd8ff" opacity=".13" filter="url(#bsoftGlow)"/>
+      <circle r="46" fill="url(#bhull)"/>
+      <path d="M-46 4 A46 46 0 0 0 46 4" fill="none" stroke="#0f151f" stroke-width="5.4" opacity=".9"/>
+      <path d="M-46 4 A46 46 0 0 0 46 4" fill="none" stroke="#96a5b6" stroke-width="1.2"
+            opacity=".5" transform="translate(0 -4)"/>
+      <g stroke="#0f151f" stroke-width="1.1" opacity=".35" fill="none">
+        <path d="M-43 -16 A46 46 0 0 1 43 -16"/>
+        <path d="M-34 22 A46 46 0 0 0 34 22"/>
+        <path d="M-4 -46 L-4 4 M20 -42 L20 3"/>
+      </g>
+      <circle cx="-13" cy="-18" r="15.5" fill="url(#bdish)"/>
+      <circle cx="-13" cy="-18" r="15.5" fill="none" stroke="#0f151f" stroke-width="1.8" opacity=".7"/>
+      <circle cx="-13" cy="-18" r="5" fill="#d9f7ff" filter="url(#btightGlow)"/>
+      <circle r="46" fill="#050a12" opacity=".34" transform="translate(12 13)"/>
+      <circle r="46" fill="none" stroke="#9fd9f0" stroke-width="1.4" opacity=".45"
+              stroke-dasharray="64 224" stroke-dashoffset="112"/>
+    </g>
+
+    <!-- ============ wordmark ============ -->
+    <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+      <text x="48" y="112" font-size="46" font-weight="700" letter-spacing="-1.2"
+            fill="url(#wordmark)">og-bot-discord</text>
+      <text x="50" y="142" font-size="15.5" font-weight="500" letter-spacing="2.6"
+            fill="#7fd4f0" opacity=".95">OGAME COMPANION FOR DISCORD</text>
+    </g>
+
+    <!-- accent rule + sample command, the way it looks in chat -->
+    <rect x="50" y="164" width="52" height="2.5" rx="1.25" fill="#ffb03a" opacity=".9"/>
+    <g font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="13">
+      <rect x="50" y="182" width="176" height="28" rx="6" fill="#0a1522" opacity=".72"
+            stroke="#4fd8ff" stroke-opacity=".28"/>
+      <text x="64" y="200.5" fill="#cfe6f4">!mb</text>
+      <text x="94" y="200.5" fill="#7fd4f0">8944 100 80</text>
+    </g>
+
+    <rect x="1" y="1" width="678" height="238" rx="12" fill="none"
+          stroke="#7fe4ff" stroke-width="2" opacity=".18"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo-512.png" alt="og-bot-discord logo" width="200" height="200">
+  <img src="assets/banner-680x240.png" alt="og-bot-discord" width="680">
 </p>
 
 # og-bot-discord
@@ -112,6 +112,7 @@ npm test        # node:test smoke tests for the pure functions
 | `mb.js` | `!mb` moonbreak probability + loss model. |
 | `utils.js` | `prettify` number formatting and `parseServerData`. |
 | `assets/logo.svg` | Logo source (vector). `logo-512.png` is the Discord avatar, `logo-128.png` the small size. |
+| `assets/banner.svg` | Banner source (vector). `banner-680x240.png` is the Discord app banner. |
 
 ## OGame API
 
