@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner-680x240.png" alt="og-bot-discord" width="680">
+</p>
+
 # og-bot-discord
 
 A Discord bot for the [OGame](https://www.ogame.gameforge.com/) community. It
@@ -107,6 +111,8 @@ npm test        # node:test smoke tests for the pure functions
 | `alliances.js` / `alliances.utils.js` | `!oga` alliance member listing. |
 | `mb.js` | `!mb` moonbreak probability + loss model. |
 | `utils.js` | `prettify` number formatting and `parseServerData`. |
+| `assets/logo.svg` | Logo source (vector). `logo-512.png` is the Discord avatar, `logo-128.png` the small size. |
+| `assets/banner.svg` | Banner source (vector). `banner-680x240.png` is the Discord app banner. |
 
 ## OGame API
 
