@@ -1,4 +1,19 @@
 node_modules
+npm-debug.log
+
+# Ne doivent jamais entrer dans une couche d'image.
 .env
-scripts/.env
+*.env
+
 .git
+.github
+.gitignore
+.dockerignore
+Dockerfile
+.editorconfig
+.DS_Store
+
+README.md
+assets
+tests
+eslint.config.js

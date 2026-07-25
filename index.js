@@ -6,6 +6,7 @@ import { getCommerceMessage } from './commerce.js';
 import { getExpeditions } from './expeditions.js';
 import { getPlayer } from './players.js';
 import { getUniverseData } from './serverData.js';
+import { startHealthServer } from './health.js';
 import { moonBreak } from './mb.js';
 
 const client = new Client({
@@ -73,5 +74,33 @@ client.on('messageCreate', async (msg) => {
     await reply(msg.channel, getHelpMessage());
   }
 });
+
+const healthServer = startHealthServer(client);
+
+// Scaleway envoie SIGTERM avant de recycler une instance. Sans ce traitement,
+// le process est tué au bout du délai de grâce et la connexion gateway reste
+// ouverte côté Discord le temps du timeout, ce qui peut faire apparaître le bot
+// en ligne alors qu'il ne répond plus.
+let shuttingDown = false;
+
+for (const signal of ['SIGTERM', 'SIGINT']) {
+  process.on(signal, async () => {
+    if (shuttingDown) {
+      return;
+    }
+    shuttingDown = true;
+
+    console.log(`${signal} received, shutting down`);
+    healthServer.close();
+    await client.destroy();
+    process.exit(0);
+  });
+}
+
+if (!process.env.DISCORD_TOKEN) {
+  // Sans ça, discord.js échoue plus loin avec une erreur peu parlante.
+  console.error('DISCORD_TOKEN is not set');
+  process.exit(1);
+}
 
 client.login(process.env.DISCORD_TOKEN);

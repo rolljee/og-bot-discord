@@ -9,7 +9,6 @@
   },
   "scripts": {
     "start": "node index.js",
-    "deploy": "./scripts/deploy.sh",
     "lint": "eslint .",
     "test": "node --test"
   },
