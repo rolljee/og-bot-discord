@@ -72,15 +72,27 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    # Sauté proprement quand les secrets d'infrastructure sont absents, ce qui
-    # couvre deux cas réels :
+    # Les étapes ci-dessous sont sautées quand les secrets d'infrastructure sont
+    # absents, ce qui couvre deux cas réels :
     #   - l'amorçage, où l'image doit exister sur GHCR avant que Terraform
     #     puisse créer le container et donc fournir son ID ;
     #   - les forks de ce dépôt public, qui n'ont pas ces secrets et dont la CI
     #     serait sinon rouge en permanence.
-    if: ${{ secrets.SCW_CONTAINER_ID != '' }}
+    #
+    # Le test se fait sur `env` et non sur `secrets` : le contexte `secrets`
+    # n'est autorisé dans aucun `if`, ni au niveau job ni au niveau step. Il est
+    # en revanche autorisé dans `env` au niveau du job, et `env` est lisible
+    # depuis un `if` de step — d'où ce passage de relais.
+    env:
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+      CONTAINER_ID: ${{ secrets.SCW_CONTAINER_ID }}
+      REGION: ${{ secrets.SCW_REGION }}
 
     steps:
+      - name: Vérifier la présence des secrets d'infrastructure
+        if: env.CONTAINER_ID == ''
+        run: |
+          echo "::notice::Secrets d'infrastructure absents, deploiement saute."
       # Terraform déclare l'image en `:latest` et n'est jamais exécuté ici : ce
       # dépôt reste indépendant de l'infrastructure. Il lui suffit de demander à
       # Scaleway de re-tirer le tag.
@@ -89,10 +101,7 @@ jobs:
       # projet Kompas (voir og-bot-discord.tf côté infra). Le token Discord,
       # lui, n'est jamais exposé à la CI.
       - name: Déclencher le redéploiement
-        env:
-          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
-          CONTAINER_ID: ${{ secrets.SCW_CONTAINER_ID }}
-          REGION: ${{ secrets.SCW_REGION }}
+        if: env.CONTAINER_ID != ''
         run: |
           set -euo pipefail
 
@@ -109,10 +118,7 @@ jobs:
       # Sans cette étape, la CI serait verte même si le container ne démarre
       # pas : l'appel de redéploiement est asynchrone.
       - name: Attendre que le container soit prêt
-        env:
-          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
-          CONTAINER_ID: ${{ secrets.SCW_CONTAINER_ID }}
-          REGION: ${{ secrets.SCW_REGION }}
+        if: env.CONTAINER_ID != ''
         run: |
           set -euo pipefail
 
