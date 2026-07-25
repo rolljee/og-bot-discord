@@ -2,14 +2,11 @@ import { EmbedBuilder } from 'discord.js';
 
 import { searchAlliances } from './alliances.utils.js';
 import { getPlayersNameByIds } from './players.utils.js';
+import { parseNamedCommand } from './utils.js';
 
 export async function getAlliance(msg) {
-  const [, universe, lang, ...alliances] = msg.split(' ');
-  if (!universe || !lang || !alliances.length) {
-    throw new Error('failed');
-  }
+  const { universe, lang, name: allianceName } = parseNamedCommand(msg);
 
-  const allianceName = alliances.join(' ');
   const _alliances = await searchAlliances(lang, universe);
 
   const result = _alliances.find(alliance => alliance.name === allianceName || alliance.tag === allianceName);
@@ -25,5 +22,5 @@ export async function getAlliance(msg) {
       });
   }
 
-  return 'Pas d\'alliance avec ce nom';
+  return `Aucune alliance nommée \`${allianceName}\` sur s${universe}-${lang} (nom ou tag, sensible à la casse).`;
 }

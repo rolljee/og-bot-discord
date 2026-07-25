@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { prettify } from '../utils.js';
+import { parseNamedCommand, prettify, stripQuotes } from '../utils.js';
 import { moonBreak } from '../mb.js';
 import { getCommerceMessage } from '../commerce.js';
 
@@ -51,4 +51,36 @@ test('getCommerceMessage converts metal into other resources', () => {
 test('getCommerceMessage handles crystal and deut', () => {
   assert.match(getCommerceMessage('!ogc C 60/40 2:1.5:1 1000000'), /C contre/);
   assert.match(getCommerceMessage('!ogc D 60/40 2:1.5:1 1000000'), /D contre/);
+});
+
+test('parseNamedCommand keeps multi-word names', () => {
+  assert.deepEqual(parseNamedCommand('!ogp 282 fr Procurator Pavo'), {
+    universe: '282',
+    lang: 'fr',
+    name: 'Procurator Pavo',
+  });
+});
+
+test('parseNamedCommand strips quotes around the name', () => {
+  // Discord passe les guillemets tels quels, la recherche par nom exact échouait.
+  assert.equal(parseNamedCommand('!ogp 282 fr "Procurator Pavo"').name, 'Procurator Pavo');
+  assert.equal(parseNamedCommand('!ogp 282 fr “Procurator Pavo”').name, 'Procurator Pavo');
+  assert.equal(parseNamedCommand('!ogp 282 fr \'Procurator Pavo\'').name, 'Procurator Pavo');
+});
+
+test('parseNamedCommand tolerates extra whitespace', () => {
+  assert.equal(parseNamedCommand('  !ogp  282   fr   Procurator Pavo  ').name, 'Procurator Pavo');
+});
+
+test('parseNamedCommand rejects incomplete commands', () => {
+  assert.throws(() => parseNamedCommand('!ogp'));
+  assert.throws(() => parseNamedCommand('!ogp 282'));
+  assert.throws(() => parseNamedCommand('!ogp 282 fr'));
+  assert.throws(() => parseNamedCommand('!ogp 282 fr ""'));
+});
+
+test('stripQuotes leaves unquoted and asymmetric input alone', () => {
+  assert.equal(stripQuotes('Procurator Pavo'), 'Procurator Pavo');
+  assert.equal(stripQuotes('"Procurator Pavo'), '"Procurator Pavo');
+  assert.equal(stripQuotes('L’Empire'), 'L’Empire');
 });
