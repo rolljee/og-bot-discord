@@ -30,6 +30,7 @@ All commands are triggered by a prefix in any channel the bot can read.
 | `!oga <n°> <lang> <alliance name or tag>` | List the members of an alliance. | `!oga 176 fr TWA` |
 | `!mb <moon size> <RIPs> [<RIPs> …]` | Moonbreak probability + RIP-loss estimate. Moon size in km (3464–8944), 1 to 4 attackers. | `!mb 8944 100 80` |
 | `!og help` | Show the in-Discord command list. | `!og help` |
+| `!og coffee` | Show the donation link as a button. | `!og coffee` |
 
 ## Requirements
 
@@ -77,12 +78,13 @@ first — they take precedence over the role permissions granted by this link.
 
 ## Configuration
 
-The bot reads two environment variables:
+The bot reads three environment variables:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `DISCORD_TOKEN` | — | Bot token. Required; the process exits immediately without it. |
 | `PORT` | `8080` | Port of the health endpoint. |
+| `DONATE_URL` | `https://buymeacoffee.com/rolljee` | Donation link shown by `!og coffee`. Override it on a fork; set it empty to disable the command and hide it from the help embed. |
 
 ## Run locally
 
@@ -162,6 +164,7 @@ npm test        # node:test smoke tests for the pure functions
 | `create-link.js` | `!ogl` galaxy link + moon-lock key/probe counts. |
 | `alliances.js` / `alliances.utils.js` | `!oga` alliance member listing. |
 | `mb.js` | `!mb` moonbreak probability + loss model. |
+| `donate.js` | `!og coffee` donation embed + link button (`DONATE_URL`). |
 | `utils.js` | `prettify` number formatting and `parseServerData`. |
 | `assets/logo.svg` | Logo source (vector). `logo-512.png` is the Discord avatar, `logo-128.png` the small size. |
 | `assets/banner.svg` | Banner source (vector). `banner-680x240.png` is the Discord app banner. |

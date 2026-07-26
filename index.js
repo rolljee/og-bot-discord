@@ -4,6 +4,7 @@ import { createLink } from './create-link.js';
 import { getAlliance } from './alliances.js';
 import { getCommerceMessage } from './commerce.js';
 import { UserError } from './errors.js';
+import { getDonateMessage, getDonateUrl } from './donate.js';
 import { getExpeditions } from './expeditions.js';
 import { getPlayer } from './players.js';
 import { getUniverseData } from './serverData.js';
@@ -19,7 +20,7 @@ const client = new Client({
 });
 
 function getHelpMessage() {
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setTitle('Commandes du plugins\n​')
     .setAuthor({ name: client.user.username, iconURL: client.user.avatarURL() })
     .setColor('#000000')
@@ -33,10 +34,20 @@ function getHelpMessage() {
       { name: '`!oga <n°> <lang> alliances`', value: 'Affiche les joueur d\'une alliance\n​' },
       { name: '`!mb <taille> <Rips>`', value: 'Calcul de probabilites d\'un moonbreak' },
     );
+
+  if (getDonateUrl()) {
+    embed.addFields({ name: '​\n`!og coffee`', value: 'Soutenir l\'hébergement du bot ☕' });
+  }
+
+  return embed;
 }
 
-// Sends a string as message content or an EmbedBuilder as an embed.
+// Sends a string as message content, an EmbedBuilder as an embed, or a ready
+// made payload (embed + components) as is. `null` sends nothing.
 function reply(channel, message) {
+  if (!message) {
+    return undefined;
+  }
   if (message instanceof EmbedBuilder) {
     return channel.send({ embeds: [message] });
   }
@@ -67,6 +78,8 @@ client.on('messageCreate', async (msg) => {
       await reply(msg.channel, await createLink(msg.content));
     } else if (msg.content.startsWith('!oga')) {
       await reply(msg.channel, await getAlliance(msg.content));
+    } else if (msg.content.startsWith('!og coffee')) {
+      await reply(msg.channel, getDonateMessage(client));
     } else if (msg.content.startsWith('!og help')) {
       await reply(msg.channel, getHelpMessage());
     }
