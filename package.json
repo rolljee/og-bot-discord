@@ -1,6 +1,6 @@
 {
   "name": "og-bot-discord",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Discord bot for OGame: player/planet lookup, trade calculator, expeditions, moon-lock links, alliances and moonbreak probabilities.",
   "type": "module",
   "main": "index.js",
@@ -17,7 +17,7 @@
   "dependencies": {
     "discord.js": "^14.27.0",
     "lodash": "^4.18.1",
-    "ogamejs": "^3.0.0",
+    "ogamejs": "^4.0.2",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {

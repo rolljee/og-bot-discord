@@ -16,47 +16,65 @@ function parseInput(msg) {
   return parsed_tab;
 }
 
-function getLosses(moonsize, nbrip, nb_attaquant) {
-  //Estimation des pertes
+// Les vagues qu'un attaquant envoie réellement, dans l'ordre où elles partent:
+// `reste` vagues d'un RIP de plus, puis les autres. Un attaquant qui a moins de
+// 6 RIP envoie des vagues vides, qui ne menacent pas la lune et ne perdent
+// aucun vaisseau.
+function vaguesAttaquant(nbrip) {
+  const base = Math.floor(nbrip / 6);
+  const reste = nbrip % 6;
 
-  // 100 RIP 3 j = 18 vagues (3*6)
-  // 15 RIP 3 j = 15 vagues
-  //donc si nbrip >= nb_att * 6 => nb_vague = nb_att*6
-  //sinon nbvague = nbrip
+  return Array.from({ length: 6 }, (_, i) => (i < reste ? base + 1 : base));
+}
 
-  let nb_vague;
+// Toutes les vagues de l'attaque, dans l'ordre de tir. Les attaquants passent
+// l'un après l'autre: dès qu'une vague réussit, la lune n'est plus là et rien
+// derrière ne tire.
+export function vaguesAttaque(flottes) {
+  return flottes.flatMap(vaguesAttaquant);
+}
 
-  if (nbrip >= nb_attaquant * 6) {
-    nb_vague = nb_attaquant * 6;
-  } else {
-    nb_vague = nbrip;
-  }
+// Estimation des pertes, parcourue sur les vagues réelles de l'attaque —
+// celles-là mêmes qui servent au calcul de la probabilité, chacune à sa taille.
+// Auparavant la flotte était mise en commun en une seule taille de vague
+// moyenne (`nbrip / nb_vague`), ce qui rendait l'estimation aveugle au partage:
+// 101 RIP envoyées en 1 + 100 donnaient les mêmes pertes qu'en 50 + 50, alors
+// que la probabilité de casser la lune passe de 79 % à 87 %.
+//
+// Chaque RIP d'une vague est détruite indépendamment avec la probabilité
+// `proba_destr`, donc une vague perd Binomiale(taille, proba_destr) vaisseaux.
+// La variance ci-dessous somme les variances par vague, ce qui les suppose
+// indépendantes alors qu'elles partagent la chaîne de survie; la dispersion est
+// ensuite résumée par une gaussienne. Deux approximations conservées du modèle
+// d'origine.
+function getLosses(moonsize, flottes) {
+  const nbrip = flottes.reduce((total, rip) => total + rip, 0);
 
-  //proba de reussite d'une vague moyenne de rip, plafonnée à 1 comme dans la formule officielle
-  const proba_moyenne = Math.min(
-    (100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip / nb_vague) / 100,
-    1,
-  );
-  const proba_echec_moy = 1 - proba_moyenne;
-
-  //proba de destruction d'une vague de rip moyenne
+  //proba de destruction d'une RIP par la lune
   const proba_destr = Math.sqrt(moonsize) / 200;
 
   //somme des pertes
   let pertes = 0;
   let variance = 0;
 
-  //les pertes sont calculé itérativement: nbrip_moy * proba_destr * proba que les vagues d'avant échouent
-  for (let i = 0; i < nb_vague; i++) {
-    pertes = pertes + (nbrip / nb_vague) * proba_destr *
-      (proba_echec_moy ** (i));
+  //proba que toutes les vagues précédentes aient échoué: une vague ne coûte des
+  //RIP que si elle part.
+  let atteinte = 1;
 
-    //On considère 6 variables de bernoulli Xk de proba proba_destr*proba_echec_moy^(k-1)
-    //Ces 6 lois sont indépendantes (calcul de covariance Cov(Xi,Xj)=0 pour tout i!=j)
-    //donc la variance de la somme est la somme des variances
-    //Enfin, les pertes variances sont les pertes associés à chaque loi est la variance de la loi Xk * le nb de rip de la vague k
-    variance = variance + (nbrip / nb_vague) * proba_destr *
-      (proba_echec_moy ** (i)) * (1 - proba_destr * (proba_echec_moy ** (i)));
+  for (const taille of vaguesAttaque(flottes)) {
+    const p = proba_destr * atteinte;
+
+    pertes = pertes + taille * p;
+    variance = variance + taille * p * (1 - p);
+
+    //proba de réussite d'une vague de cette taille, plafonnée à 1 comme dans la
+    //formule officielle
+    const proba_vague = Math.min(
+      ((100 - Math.sqrt(moonsize)) * Math.sqrt(taille)) / 100,
+      1,
+    );
+
+    atteinte = atteinte * (1 - proba_vague);
   }
 
   let ecarttype = Math.sqrt(variance);
@@ -194,16 +212,13 @@ export function moonBreak(message) {
     }
   }
 
-  let total_rip = 0;
-
-  for (let i = 1; i <= nb_joueur; i++) {
-    total_rip += tab[i];
-  }
+  //Les flottes dans l'ordre où elles sont listées, qui est l'ordre de tir.
+  const flottes = tab.slice(1, nb_joueur + 1);
+  const total_rip = flottes.reduce((total, rip) => total + rip, 0);
 
   const { pertes, min1, max1, min2, max2, min3, max3 } = getLosses(
     moonsize,
-    total_rip,
-    nb_joueur,
+    flottes,
   );
 
   //On utilise alors les propriétés de répartitions autour d'une gaussienne avec l'écart type
