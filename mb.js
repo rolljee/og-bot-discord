@@ -1,3 +1,5 @@
+import Ogame from 'ogamejs';
+
 function parseInput(msg) {
   const split = msg.split(' '); //Split des arguments
 
@@ -16,81 +18,29 @@ function parseInput(msg) {
   return parsed_tab;
 }
 
-// Les vagues qu'un attaquant envoie réellement, dans l'ordre où elles partent:
-// `reste` vagues d'un RIP de plus, puis les autres. Un attaquant qui a moins de
-// 6 RIP envoie des vagues vides, qui ne menacent pas la lune et ne perdent
-// aucun vaisseau.
-function vaguesAttaquant(nbrip) {
-  const base = Math.floor(nbrip / 6);
-  const reste = nbrip % 6;
+// Les vagues, la probabilité et les pertes viennent d'ogamejs
+// (`Fleets.getMoonbreak*`), comme sur ogame-ui: le bot et le site partagent le
+// même calcul. Ce fichier ne garde que la lecture de la commande et le message.
+const { getMoonbreakWaves, getMoonbreakChance, getMoonbreakLosses } = Ogame.Fleets;
 
-  return Array.from({ length: 6 }, (_, i) => (i < reste ? base + 1 : base));
-}
+const arrondi = (n) => Math.round(n * 100) / 100;
 
-// Toutes les vagues de l'attaque, dans l'ordre de tir. Les attaquants passent
-// l'un après l'autre: dès qu'une vague réussit, la lune n'est plus là et rien
-// derrière ne tire.
+// Toutes les vagues de l'attaque, dans l'ordre de tir: six par attaquant, les
+// plus grosses en tête.
 export function vaguesAttaque(flottes) {
-  return flottes.flatMap(vaguesAttaquant);
+  return flottes.flatMap(getMoonbreakWaves);
 }
 
-// Estimation des pertes, parcourue sur les vagues réelles de l'attaque —
-// celles-là mêmes qui servent au calcul de la probabilité, chacune à sa taille.
-// Auparavant la flotte était mise en commun en une seule taille de vague
-// moyenne (`nbrip / nb_vague`), ce qui rendait l'estimation aveugle au partage:
-// 101 RIP envoyées en 1 + 100 donnaient les mêmes pertes qu'en 50 + 50, alors
-// que la probabilité de casser la lune passe de 79 % à 87 %.
-//
-// Chaque RIP d'une vague est détruite indépendamment avec la probabilité
-// `proba_destr`, donc une vague perd Binomiale(taille, proba_destr) vaisseaux.
-// La variance ci-dessous somme les variances par vague, ce qui les suppose
-// indépendantes alors qu'elles partagent la chaîne de survie; la dispersion est
-// ensuite résumée par une gaussienne. Deux approximations conservées du modèle
-// d'origine.
 function getLosses(moonsize, flottes) {
-  const nbrip = flottes.reduce((total, rip) => total + rip, 0);
+  const { mean, bands } = getMoonbreakLosses(moonsize, flottes);
+  const [b1, b2, b3] = bands;
 
-  //proba de destruction d'une RIP par la lune
-  const proba_destr = Math.sqrt(moonsize) / 200;
-
-  //somme des pertes
-  let pertes = 0;
-  let variance = 0;
-
-  //proba que toutes les vagues précédentes aient échoué: une vague ne coûte des
-  //RIP que si elle part.
-  let atteinte = 1;
-
-  for (const taille of vaguesAttaque(flottes)) {
-    const p = proba_destr * atteinte;
-
-    pertes = pertes + taille * p;
-    variance = variance + taille * p * (1 - p);
-
-    //proba de réussite d'une vague de cette taille, plafonnée à 1 comme dans la
-    //formule officielle
-    const proba_vague = Math.min(
-      ((100 - Math.sqrt(moonsize)) * Math.sqrt(taille)) / 100,
-      1,
-    );
-
-    atteinte = atteinte * (1 - proba_vague);
-  }
-
-  let ecarttype = Math.sqrt(variance);
-
-  //On modélisera la répartition des pertes par une gaussienne.
-  let min1 = Math.round(100 * Math.max((pertes - ecarttype), 0)) / 100;
-  let min2 = Math.round(100 * Math.max((pertes - 2 * ecarttype), 0)) / 100;
-  let min3 = Math.round(100 * Math.max((pertes - 3 * ecarttype), 0)) / 100;
-  let max1 = Math.round(100 * Math.min((pertes + ecarttype), nbrip)) / 100;
-  let max2 = Math.round(100 * Math.min((pertes + 2 * ecarttype), nbrip)) / 100;
-  let max3 = Math.round(100 * Math.min((pertes + 3 * ecarttype), nbrip)) / 100;
-
-  //arrondi des pertes au centiemes
-  pertes = Math.round(100 * pertes) / 100;
-
-  return { pertes, min1, max1, min2, max2, min3, max3 };
+  return {
+    pertes: arrondi(mean),
+    min1: arrondi(b1.min), max1: arrondi(b1.max),
+    min2: arrondi(b2.min), max2: arrondi(b2.max),
+    min3: arrondi(b3.min), max3: arrondi(b3.max),
+  };
 }
 
 export function moonBreak(message) {
@@ -116,56 +66,18 @@ export function moonBreak(message) {
     return 'Erreur dans les paramètres.\n    Usage: !mb <TailleLune> <Nombre_RIP_J1> [<Nombre_RIP_J2>] [<Nombre_RIP_J3>] ... [<Nombre_RIP_JN>]\n\nTaille de la lune compris entre 3464km et 8944km.\nNombre_RIP un nombre entier positif.\nEntre 1 et 4 attaquant(s) au plus.';
   }
 
-  let vague_joueur = [];
-  let reste_joueur = [];
-
-  let proba_mb;
-  let proba_echec;
-  let proba_full_echec = 1; //proba initiale que x mb echouent
+  const vague_joueur = [];
+  const reste_joueur = [];
 
   for (let j = 1; j <= nb_joueur; j++) {
-    let nbrip = tab[j];
-
-    let nbrip_vague = Math.floor(nbrip / 6); //Nb de rip par vague
-    let nbrip_reste = nbrip % 6; //Reste à ajouter aux vagues
-    vague_joueur[j - 1] = nbrip_vague;
-    reste_joueur[j - 1] = nbrip_reste;
-
-    if (nbrip_reste === 0) { //S'il n'y a pas de reste, on calcul la proba des 6vagues consécutives de y RIPs
-      //Proba pourcent de moonbreak (formule officielle)
-      proba_mb = ((100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip_vague)) / 100;
-      if (proba_mb > 1) {
-        proba_mb = 1; //Caution si la proba est > 1
-      }
-
-      proba_echec = 1 - proba_mb; //proba d'echec
-
-      proba_full_echec = proba_full_echec * (proba_echec ** 6); //proba d'echec des 6 vagues consécutives
-    } else { //S'il y a des restes on calcul d'abord la proba d'échec des r vagues de nbrip_vague+1 RIP puis les 6-r autres vagues de nbrip_vague
-      //proba pourcent de mb (formule officielle) pour une vague de nbrip_vague+1
-      proba_mb = ((100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip_vague + 1)) /
-        100;
-      if (proba_mb > 1) {
-        proba_mb = 1; //Caution si la proba est > 1
-      }
-
-      proba_echec = 1 - proba_mb; //proba d'échec
-
-      proba_full_echec = proba_full_echec * (proba_echec ** nbrip_reste); //proba d'échec des r vagues de y+1 RIP consécutives
-
-      //proba pourcent de mb (formule officielle) pour une vague de nbrip_vague
-      proba_mb = (100 - Math.sqrt(moonsize)) * Math.sqrt(nbrip_vague) / 100;
-      if (proba_mb > 1) {
-        proba_mb = 1; //Caution si la proba est > 1
-      }
-
-      proba_echec = 1 - proba_mb; //proba d'échec
-
-      proba_full_echec = proba_full_echec * (proba_echec ** (6 - nbrip_reste)); //proba d'echec des r vagues de y+1 RIP et 6-r vagues consécutives de y RIPs
-    }
+    vague_joueur[j - 1] = Math.floor(tab[j] / 6); //Nb de rip par vague
+    reste_joueur[j - 1] = tab[j] % 6; //Reste à ajouter aux vagues
   }
 
-  const proba_reussite = Math.round((1 - proba_full_echec) * 10000) / 100; //calcul de la proba de ne pas echouer tout arrondi au centième
+  //Les flottes dans l'ordre où elles sont listées, qui est l'ordre de tir.
+  const flottes = tab.slice(1, nb_joueur + 1);
+
+  const proba_reussite = arrondi(getMoonbreakChance(moonsize, flottes) * 100); //arrondi au centième
 
   let mbspeak;
 
@@ -212,8 +124,6 @@ export function moonBreak(message) {
     }
   }
 
-  //Les flottes dans l'ordre où elles sont listées, qui est l'ordre de tir.
-  const flottes = tab.slice(1, nb_joueur + 1);
   const total_rip = flottes.reduce((total, rip) => total + rip, 0);
 
   const { pertes, min1, max1, min2, max2, min3, max3 } = getLosses(

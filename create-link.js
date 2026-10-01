@@ -3,15 +3,15 @@ import Ogame from 'ogamejs';
 
 import { parseServerData } from './utils.js';
 
+// Le nombre de vaisseaux vient d'ogamejs (`Fleets.getMoonLockShips`), comme
+// sur ogame-ui: 1 est le chasseur léger, 15 la sonde d'espionnage.
 function getMoonPercent(data) {
   const models = Ogame.models.Destroyable;
-
-  const cle = models[1].cost.metal + models[1].cost.crystal;
-  const probe = models[15].cost.metal + models[15].cost.crystal;
+  const debrisFactor = Number(data.debrisFactor);
 
   return {
-    cle: Math.ceil(2000000 / (data.debrisFactor * cle)),
-    probe: Math.ceil(2000000 / (data.debrisFactor * probe)),
+    cle: Ogame.Fleets.getMoonLockShips(models[1], debrisFactor),
+    probe: Ogame.Fleets.getMoonLockShips(models[15], debrisFactor),
   };
 }
 
