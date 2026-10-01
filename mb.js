@@ -61,8 +61,10 @@ export function moonBreak(message) {
     check_rip = true; //sinon erreur
   }
 
-  // Valiadation des conditions
-  if (moonsize < 3464 || moonsize > 8944 || check_rip) {
+  // Valiadation des conditions. L'aide et le message d'erreur annoncent 4
+  // attaquants au plus, comme une attaque groupée en jeu: au-delà, le bot
+  // répondait quand même avec une attaque impossible.
+  if (moonsize < 3464 || moonsize > 8944 || check_rip || nb_joueur > 4) {
     return 'Erreur dans les paramètres.\n    Usage: !mb <TailleLune> <Nombre_RIP_J1> [<Nombre_RIP_J2>] [<Nombre_RIP_J3>] ... [<Nombre_RIP_JN>]\n\nTaille de la lune compris entre 3464km et 8944km.\nNombre_RIP un nombre entier positif.\nEntre 1 et 4 attaquant(s) au plus.';
   }
 

@@ -74,6 +74,11 @@ test('moonBreak rejects out-of-range moon size', () => {
   assert.match(out, /Erreur dans les paramètres/);
 });
 
+test('moonBreak refuse plus de 4 attaquants', () => {
+  assert.match(moonBreak('!mb 8944 10 10 10 10 10'), /Erreur dans les paramètres/);
+  assert.match(moonBreak('!mb 8944 10 10 10 10'), /4 attaquants/);
+});
+
 test('moonBreak rejects when no attacker is given', () => {
   const out = moonBreak('!mb 5000');
   assert.match(out, /Erreur dans les paramètres/);
