@@ -7,6 +7,7 @@ import { UserError } from './errors.js';
 import { getDonateMessage, getDonateUrl } from './donate.js';
 import { getExpeditions } from './expeditions.js';
 import { getPlayer } from './players.js';
+import { getNearestAllies } from './position.js';
 import { getUniverseData } from './serverData.js';
 import { startHealthServer } from './health.js';
 import { moonBreak } from './mb.js';
@@ -27,6 +28,7 @@ function getHelpMessage() {
     .setThumbnail('https://apprecs.org/ios/images/app-icons/256/a7/553453991.jpg')
     .addFields(
       { name: '`!ogp <n°> <lang> <Nom du joueur>`', value: 'Affiche les planètes d\'un joueur\n​' },
+      { name: '`!ogpos <n°> <lang> <pos> [joueur | [TAG]]`', value: 'Alliés les plus proches d\'une position (sans nom : alliés du propriétaire)\n​' },
       { name: '`!ogc <M|C|D> <60/40> <2:1.5:1> <nombre>`', value: 'Commerce de ressources\n​' },
       { name: '`!ogs <n°> <lang>`', value: 'Affiche les informations d\'un serveur\n​' },
       { name: '`!oge <n°> <lang> <niveau de recherche hyperespace>`', value: 'Affiche les informations d\'expedition d\'un serveur\n​' },
@@ -64,7 +66,10 @@ client.on('messageCreate', async (msg) => {
       return;
     }
 
-    if (msg.content.startsWith('!ogp')) {
+    // `!ogpos` avant `!ogp`: le dispatch par préfixe enverrait sinon `!ogpos` à `!ogp`.
+    if (msg.content.startsWith('!ogpos')) {
+      await reply(msg.channel, await getNearestAllies(msg.content));
+    } else if (msg.content.startsWith('!ogp')) {
       await reply(msg.channel, await getPlayer(msg.content));
     } else if (msg.content.startsWith('!mb')) {
       await reply(msg.channel, moonBreak(msg.content));
