@@ -23,6 +23,7 @@ All commands are triggered by a prefix in any channel the bot can read.
 | Command | Description | Example |
 | --- | --- | --- |
 | `!ogp <n°> <lang> <player name>` | Show a player's planets (with moons) and points. | `!ogp 176 fr Darth Vader` |
+| `!ogpos <n°> <lang> <galaxy:system:position> [player \| [TAG]]` | Nearest allies to a position: one line per member (closest planet or moon), vacation/inactive/banned skipped. Without a name, uses the alliance of whoever owns the position; a player name uses that player's alliance; `[TAG]` (or an alliance name) targets an alliance directly. Positions come from `universe.xml`, refreshed weekly by Gameforge. | `!ogpos 282 fr 2:6:15 Rolljee` |
 | `!ogc <M\|C\|D> <p1/p2> <rate> <amount>` | Trade calculator. Resource to sell (Metal/Crystal/Deut), split percentages of the two other resources, exchange `rate` as `metal:crystal:deut`, and the amount. | `!ogc M 60/40 2:1.5:1 20000000` |
 | `!ogs <n°> <lang>` | Show a server's settings (speeds, debris factor, galaxies…). | `!ogs 176 fr` |
 | `!oge <n°> <lang> <hyperspace level>` | Expedition cargo estimate for a pathfinder given the top-1 score and hyperspace tech level. | `!oge 176 fr 20` |
@@ -62,7 +63,7 @@ https://discord.com/oauth2/authorize?client_id=YOUR_APPLICATION_ID&permissions=8
 | --- | --- | --- |
 | View Channels | 1024 | read the channels commands are typed in |
 | Send Messages | 2048 | plain-text replies |
-| Embed Links | 16384 | `!og help`, `!ogp`, `!oga` reply with embeds |
+| Embed Links | 16384 | `!og help`, `!ogp`, `!ogpos`, `!oga` reply with embeds |
 | Read Message History | 65536 | channel read context |
 
 **Embed Links is the one that is easy to miss.** Without it the bot connects,
@@ -158,6 +159,7 @@ npm test        # node:test smoke tests for the pure functions
 | --- | --- |
 | `index.js` | Discord client, intents, command routing. |
 | `players.js` / `players.utils.js` | `!ogp` and shared player/alliance API helpers. |
+| `position.js` / `position.utils.js` | `!ogpos` nearest allies (distance from `ogamejs`, donut-aware). |
 | `commerce.js` | `!ogc` trade calculator (uses `ogamejs`). |
 | `serverData.js` | `!ogs` server settings. |
 | `expeditions.js` | `!oge` expedition cargo estimate. |
